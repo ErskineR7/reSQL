@@ -1,0 +1,27 @@
+USE ap;
+DROP FUNCTION IF EXISTS test_glaccounts_description;
+DELIMITER ;;
+
+CREATE FUNCTION test_glaccounts_description
+(
+account_desc_param VARCHAR(50)
+)
+RETURNS INT
+BEGIN
+	DECLARE checker VARCHAR(50) DEFAULT '';
+	
+    SELECT account_description
+    INTO checker
+	FROM general_ledger_accounts
+	WHERE account_description = account_desc_param;
+	
+		IF checker = '' THEN
+			RETURN(0);
+		else
+			RETURN(1);
+		END IF;
+
+END;;
+
+DELIMITER ;
+SELECT 'Testing Function = ' + test_glaccounts_description('Accounting');
