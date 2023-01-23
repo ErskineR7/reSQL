@@ -1,0 +1,37 @@
+USE ap;
+DROP PROCEDURE IF EXISTS insert_terms;
+DELIMITER ;;
+
+CREATE PROCEDURE insert_terms
+(
+terms_due_days_param int,
+terms_description_param VARCHAR(50)
+)
+BEGIN
+	DECLARE terms_corrector VARCHAR(50);
+	DECLARE sql_error TINYINT DEFAULT FALSE;
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+		SET sql_error = TRUE;
+	
+    IF terms_description_param IS NULL THEN
+		SET terms_corrector = CONCAT('Net due ', terms_due_days_param, ' days.');
+	else
+		SET terms_corrector = terms_description_param;
+	END IF;
+    
+	START TRANSACTION;
+		INSERT INTO terms(terms_description, terms_due_days)
+        VALUES(terms_corrector, terms_due_days_param);
+        
+        IF sql_error = FAlSE THEN
+			COMMIT;
+            SELECT 'The transaction was committed.';
+		else
+			ROLLBACK;
+            SELECT 'The transaction was rolledback.';
+		END IF;
+        
+    END;;
+
+DELIMITER ;
+CALL insert_terms(300, NULL);
